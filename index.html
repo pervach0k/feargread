@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мое мини-приложение</title>
+    <title>Голосование за уровень страха и жадности</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f0f0f0;
+            text-align: center;
         }
         h1 {
             color: #333;
@@ -18,21 +19,29 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            margin: 10px;
+        }
+        #indicator {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background-color: #ccc;
         }
     </style>
 </head>
 <body>
-    <h1>Привет, это мое мини-приложение!</h1>
-    <button id="sendButton">Отправить сообщение боту</button>
+    <h1>Голосование за уровень страха и жадности</h1>
+    <button id="fearButton">Страх</button>
+    <button id="greedButton">Жадность</button>
+    <div id="indicator"></div>
 
     <script>
-        // Функция для отправки сообщения боту
-        function sendMessageToBot() {
-            // Получаем данные о пользователе
+        // Функция для отправки голоса боту
+        function vote(type) {
             const user = window.Telegram.WebApp.initDataUnsafe.user;
-            const message = `Привет, ${user.first_name}! Это сообщение от мини-приложения.`;
+            const message = `Пользователь ${user.first_name} проголосовал за ${type}.`;
 
-            // Отправляем сообщение боту
             fetch('https://api.telegram.org/bot7351524470:AAFDzboDhwOozlPG5_iZvNv8UtduozaSXkM/sendMessage', {
                 method: 'POST',
                 headers: {
@@ -45,15 +54,27 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Сообщение отправлено:', data);
+                console.log('Голос отправлен:', data);
+                updateIndicator(type);
             })
             .catch(error => {
-                console.error('Ошибка при отправке сообщения:', error);
+                console.error('Ошибка при отправке голоса:', error);
             });
         }
 
-        // Обработчик нажатия на кнопку
-        document.getElementById('sendButton').addEventListener('click', sendMessageToBot);
+        // Функция для обновления индикатора
+        function updateIndicator(type) {
+            const indicator = document.getElementById('indicator');
+            if (type === 'страх') {
+                indicator.style.backgroundColor = 'red';
+            } else if (type === 'жадность') {
+                indicator.style.backgroundColor = 'green';
+            }
+        }
+
+        // Обработчики нажатия на кнопки
+        document.getElementById('fearButton').addEventListener('click', () => vote('страх'));
+        document.getElementById('greedButton').addEventListener('click', () => vote('жадность'));
 
         // Инициализация WebApp
         window.Telegram.WebApp.ready();
