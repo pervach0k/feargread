@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мое мини-приложение</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Привет, это мое мини-приложение!</h1>
+    <button id="sendButton">Отправить сообщение боту</button>
+
+    <script>
+        // Функция для отправки сообщения боту
+        function sendMessageToBot() {
+            // Получаем данные о пользователе
+            const user = window.Telegram.WebApp.initDataUnsafe.user;
+            const message = `Привет, ${user.first_name}! Это сообщение от мини-приложения.`;
+
+            // Отправляем сообщение боту
+            fetch('https://api.telegram.org/bot7351524470:AAFDzboDhwOozlPG5_iZvNv8UtduozaSXkM/sendMessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: user.id,
+                    text: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Сообщение отправлено:', data);
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке сообщения:', error);
+            });
+        }
+
+        // Обработчик нажатия на кнопку
+        document.getElementById('sendButton').addEventListener('click', sendMessageToBot);
+
+        // Инициализация WebApp
+        window.Telegram.WebApp.ready();
+    </script>
+</body>
+</html>
