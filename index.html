@@ -39,6 +39,7 @@
     <script>
         // Функция для отправки голоса на сервер
         function vote(type) {
+            console.log(`Sending vote: ${type}`);
             fetch('http://localhost:3000/vote', {
                 method: 'POST',
                 headers: {
@@ -58,6 +59,7 @@
 
         // Функция для обновления индикатора
         function updateIndicator() {
+            console.log('Updating indicator');
             fetch('http://localhost:3000/votes')
             .then(response => response.json())
             .then(data => {
