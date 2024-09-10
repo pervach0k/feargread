@@ -37,25 +37,19 @@
     <div id="indicator"></div>
 
     <script>
-        // Функция для отправки голоса боту
+        // Функция для отправки голоса на сервер
         function vote(type) {
-            const user = window.Telegram.WebApp.initDataUnsafe.user;
-            const message = `Пользователь ${user.first_name} проголосовал за ${type}.`;
-
-            fetch('https://api.telegram.org/bot7351524470:AAFDzboDhwOozlPG5_iZvNv8UtduozaSXkM/sendMessage', {
+            fetch('http://localhost:3000/vote', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    chat_id: user.id,
-                    text: message
-                })
+                body: JSON.stringify({ type })
             })
             .then(response => response.json())
             .then(data => {
                 console.log('Голос отправлен:', data);
-                updateIndicator(type);
+                updateIndicator();
             })
             .catch(error => {
                 console.error('Ошибка при отправке голоса:', error);
@@ -63,21 +57,38 @@
         }
 
         // Функция для обновления индикатора
-        function updateIndicator(type) {
-            const indicator = document.getElementById('indicator');
-            if (type === 'страх') {
-                indicator.style.backgroundColor = 'red';
-            } else if (type === 'жадность') {
-                indicator.style.backgroundColor = 'green';
-            }
+        function updateIndicator() {
+            fetch('http://localhost:3000/votes')
+            .then(response => response.json())
+            .then(data => {
+                const { fear, greed } = data;
+                const totalVotes = fear + greed;
+                const fearPercentage = (fear / totalVotes) * 100;
+                const greedPercentage = (greed / totalVotes) * 100;
+
+                const indicator = document.getElementById('indicator');
+                if (fearPercentage > greedPercentage) {
+                    indicator.style.backgroundColor = 'red';
+                } else if (greedPercentage > fearPercentage) {
+                    indicator.style.backgroundColor = 'green';
+                } else {
+                    indicator.style.backgroundColor = '#ccc';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при получении результатов голосования:', error);
+            });
         }
 
         // Обработчики нажатия на кнопки
-        document.getElementById('fearButton').addEventListener('click', () => vote('страх'));
-        document.getElementById('greedButton').addEventListener('click', () => vote('жадность'));
+        document.getElementById('fearButton').addEventListener('click', () => vote('fear'));
+        document.getElementById('greedButton').addEventListener('click', () => vote('greed'));
 
         // Инициализация WebApp
         window.Telegram.WebApp.ready();
+
+        // Обновление индикатора при загрузке страницы
+        updateIndicator();
     </script>
 </body>
 </html>
